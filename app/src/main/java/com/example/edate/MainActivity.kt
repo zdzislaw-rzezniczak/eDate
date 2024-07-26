@@ -25,19 +25,28 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.google.firebase.database.getValue
 import android.util.Log
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyApp()
+            val loginViewModel = viewModel(modelClass = LoginViewModel :: class)
+            Navigation(loginViewModel = loginViewModel)
+
+            val lifecycleObserver = AppLifecycleObserver {
+                logoutUser()
+            }
+            ProcessLifecycleOwner.get().lifecycle.addObserver(lifecycleObserver)
         }
     }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun MyApp() {
+fun Home() {
 
 
     val context = LocalContext.current
@@ -127,7 +136,12 @@ fun getLastKnownLocation(client: FusedLocationProviderClient, onResult: (Locatio
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    MyApp()
+    Home()
+}
+
+
+private fun logoutUser() {
+    FirebaseAuth.getInstance().signOut()
 }
 
 
